@@ -14,7 +14,7 @@ let package = Package(
             targets: ["PartoutCodegen"]
         ),
         .executable(
-            name: "codegen",
+            name: "partout-codegen",
             targets: ["codegen"]
         )
     ],
