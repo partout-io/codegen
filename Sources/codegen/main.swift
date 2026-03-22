@@ -35,29 +35,20 @@ struct CodegenCommand: ParsableCommand {
     @Option(name: [.customShort("r"), .customLong("manifest-root")], help: "Root folder that contains the manifest and Sources directory (defaults to current directory).")
     var manifestRoot: String = "."
 
-    @Option(name: [.customShort("o"), .long], help: "Directory where the generated file is written.")
-    var output: String
-
     @Option(name: .long, help: "YAML file describing the paths & entities to process.")
     var manifest: String
 
     func run() throws {
         let manifestURL = resolve(path: manifest)
-        let outputURL = URL(fileURLWithPath: output, isDirectory: true)
         let manifest = try loadManifest(from: manifestURL.path)
         let paths = manifest.paths.map { "\(manifestRoot)/Sources/\($0)" }
         let entities = manifest.entities
         let codegen = Codegen()
         let ctx = try codegen.scan(paths: paths, entities: entities)
 
-        let fm: FileManager = .default
-        try fm.createDirectory(at: outputURL, withIntermediateDirectories: true)
         let encoderInstance = encoder.makeEncoder()
         let result = try codegen.generate(encoder: encoderInstance, from: ctx)
-        let fileURL = outputURL
-            .appendingPathComponent(encoder.output.fileName)
-            .appendingPathExtension(encoder.output.fileExtension)
-        try result.write(to: fileURL, atomically: true, encoding: .utf8)
+        print(result, terminator: "")
     }
 
     private func resolve(path: String) -> URL {
@@ -144,17 +135,6 @@ private enum ManifestError: Error, CustomStringConvertible {
             return "Invalid manifest line: \(line)"
         case .missingSection(let line):
             return "Manifest item is missing a section header before line: \(line)"
-        }
-    }
-}
-
-private extension Codegen.Output {
-    var fileName: String { rawValue }
-
-    var fileExtension: String {
-        switch self {
-        case .openapi:
-            "yaml"
         }
     }
 }
