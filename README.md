@@ -53,14 +53,13 @@ targets: [
 ### CLI
 
 ```
-USAGE: codegen --output <output> --manifest <manifest> [--encoder <encoder>] [--manifest-root <manifest-root>]
+USAGE: codegen --manifest <manifest> [--encoder <encoder>] [--manifest-root <manifest-root>]
 
 OPTIONS:
   --encoder <encoder>             Encoder to use. Available values: openapi. Defaults to openapi.
   -r, --manifest-root <manifest-root>
                                   Root folder that contains the manifest and Sources directory
                                   (defaults to current directory).
-  -o, --output <output>           Directory where the generated file is written.
   --manifest <manifest>           YAML file describing the paths & entities to process.
   -h, --help                      Show help information.
 ```
@@ -72,10 +71,10 @@ codegen \
   --encoder openapi \
   --manifest-root /path/to/project \
   --manifest codegen.yaml \
-  --output /path/to/output
+  > openapi.yaml
 ```
 
-The tool writes a single file to the output directory. For the `openapi` encoder that file is `openapi.yaml`.
+The tool writes the generated YAML to stdout. Redirect the output to a file as needed (e.g., `> openapi.yaml`).
 
 ### Manifest file
 
