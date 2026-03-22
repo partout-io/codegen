@@ -32,8 +32,8 @@ struct CodegenCommand: ParsableCommand {
     @Option(name: .long, help: "Encoder to use. Available values: \(Encoder.allCases.map { $0.rawValue }.joined(separator: ", " )). Defaults to openapi.")
     var encoder: Encoder = .openapi
 
-    @Option(name: [.customShort("r"), .long], help: "Root folder that contains the Sources directory (defaults to current directory).")
-    var root: String = "."
+    @Option(name: [.customShort("r"), .customLong("manifest-root")], help: "Root folder that contains the manifest and Sources directory (defaults to current directory).")
+    var manifestRoot: String = "."
 
     @Option(name: [.customShort("o"), .long], help: "Directory where the generated file is written.")
     var output: String
@@ -45,7 +45,7 @@ struct CodegenCommand: ParsableCommand {
         let manifestURL = resolve(path: manifest)
         let outputURL = URL(fileURLWithPath: output, isDirectory: true)
         let manifest = try loadManifest(from: manifestURL.path)
-        let paths = manifest.paths.map { "\(root)/Sources/\($0)" }
+        let paths = manifest.paths.map { "\(manifestRoot)/Sources/\($0)" }
         let entities = manifest.entities
         let codegen = Codegen()
         let ctx = try codegen.scan(paths: paths, entities: entities)
@@ -64,7 +64,7 @@ struct CodegenCommand: ParsableCommand {
         if path.hasPrefix("/") {
             return URL(fileURLWithPath: path)
         }
-        return URL(fileURLWithPath: root, isDirectory: true)
+        return URL(fileURLWithPath: manifestRoot, isDirectory: true)
             .appendingPathComponent(path)
     }
 }
