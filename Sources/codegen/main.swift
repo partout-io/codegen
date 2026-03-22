@@ -42,14 +42,15 @@ struct CodegenCommand: ParsableCommand {
     var manifest: String
 
     func run() throws {
-        let manifest = try loadManifest(from: manifest)
+        let manifestURL = resolve(path: manifest)
+        let outputURL = URL(fileURLWithPath: output, isDirectory: true)
+        let manifest = try loadManifest(from: manifestURL.path)
         let paths = manifest.paths.map { "\(root)/Sources/\($0)" }
         let entities = manifest.entities
         let codegen = Codegen()
         let ctx = try codegen.scan(paths: paths, entities: entities)
 
         let fm: FileManager = .default
-        let outputURL = URL(fileURLWithPath: output, isDirectory: true)
         try fm.createDirectory(at: outputURL, withIntermediateDirectories: true)
         let encoderInstance = encoder.makeEncoder()
         let result = try codegen.generate(encoder: encoderInstance, from: ctx)
@@ -57,6 +58,14 @@ struct CodegenCommand: ParsableCommand {
             .appendingPathComponent(encoder.output.fileName)
             .appendingPathExtension(encoder.output.fileExtension)
         try result.write(to: fileURL, atomically: true, encoding: .utf8)
+    }
+
+    private func resolve(path: String) -> URL {
+        if path.hasPrefix("/") {
+            return URL(fileURLWithPath: path)
+        }
+        return URL(fileURLWithPath: root, isDirectory: true)
+            .appendingPathComponent(path)
     }
 }
 
