@@ -15,9 +15,14 @@ public final class Codegen {
         case openapi
     }
 
-    public let ctx: IRContext
+    public struct File {
+        public let name: String
+        public let contents: String
+    }
 
-    public init(from paths: [String], entities: [String]) throws {
+    public init() {}
+
+    public func scan(paths: [String], entities: [String]) throws -> IRContext {
         var ctx = try Self.scanDirectories(paths: paths)
         let aliasesNames = ctx.aliases.map(\.fqTypeName)
         ctx.models = ctx.models.filter {
@@ -44,12 +49,10 @@ public final class Codegen {
             undefinedEntities.remove(alias.fqTypeName)
         }
         assert(undefinedEntities.isEmpty)
-
-        // Finalize initialization
-        self.ctx = ctx
+        return ctx
     }
 
-    public func generate(encoder: CodegenEncoder) throws -> String {
+    public func generate(encoder: CodegenEncoder, from ctx: IRContext) throws -> String {
         guard let encoder = encoder as? IREncoder else {
             fatalError("\(encoder) is not a IREncoder")
         }
@@ -73,14 +76,14 @@ public final class Codegen {
         return lines.joined(separator: "\n")
     }
 
-    public func generateFiles(encoder: CodegenEncoder) throws -> [(name: String, contents: String)] {
+    public func generateFiles(encoder: CodegenEncoder, from ctx: IRContext) throws -> [File] {
         guard let encoder = encoder as? IREncoder else {
             fatalError("\(encoder) is not a IREncoder")
         }
-        var files: [(name: String, contents: String)] = []
+        var files: [File] = []
         for model in ctx.models {
             guard !ctx.aliases.contains(where: { $0.name == model.name }) else { continue }
-            files.append((
+            files.append(File(
                 name: model.fqTypeName,
                 contents: renderedContents(
                     body: encoder.encode(model, ctx: ctx),
@@ -89,7 +92,7 @@ public final class Codegen {
             ))
         }
         for alias in ctx.aliases {
-            files.append((
+            files.append(File(
                 name: alias.fqTypeName,
                 contents: renderedContents(
                     body: encoder.encode(alias, ctx: ctx),

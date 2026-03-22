@@ -45,13 +45,14 @@ struct CodegenCommand: ParsableCommand {
         let manifest = try loadManifest(from: manifest)
         let paths = manifest.paths.map { "\(root)/Sources/\($0)" }
         let entities = manifest.entities
-        let codegen = try Codegen(from: paths, entities: entities)
+        let codegen = Codegen()
+        let ctx = try codegen.scan(paths: paths, entities: entities)
 
         let fm: FileManager = .default
         let outputURL = URL(fileURLWithPath: output, isDirectory: true)
         try fm.createDirectory(at: outputURL, withIntermediateDirectories: true)
         let encoderInstance = encoder.makeEncoder()
-        let result = try codegen.generate(encoder: encoderInstance)
+        let result = try codegen.generate(encoder: encoderInstance, from: ctx)
         let fileURL = outputURL
             .appendingPathComponent(encoder.output.fileName)
             .appendingPathExtension(encoder.output.fileExtension)
