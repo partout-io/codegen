@@ -36,6 +36,10 @@ let package = Package(
                 "PartoutCodegen",
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
+        ),
+        .testTarget(
+            name: "PartoutCodegenTests",
+            dependencies: ["PartoutCodegen"]
         )
     ]
 )
