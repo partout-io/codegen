@@ -4,7 +4,7 @@
 
 import ArgumentParser
 import Foundation
-import PartoutCodegen
+import CodegenLibrary
 
 struct CodegenCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
@@ -95,12 +95,12 @@ struct CodegenCommand: ParsableCommand {
     }
 }
 
-private func loadManifest(from path: String) throws -> PartoutManifest {
+private func loadManifest(from path: String) throws -> CodegenManifest {
     let contents = try String(contentsOfFile: path)
-    return try PartoutManifest(yaml: contents)
+    return try CodegenManifest(yaml: contents)
 }
 
-private struct PartoutManifest: Decodable {
+private struct CodegenManifest: Decodable {
     let paths: [String]
     let entities: [String]
 

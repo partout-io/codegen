@@ -4,17 +4,17 @@
 import PackageDescription
 
 let package = Package(
-    name: "partout-codegen",
+    name: "codegen",
     platforms: [
         .macOS(.v10_15)
     ],
     products: [
         .library(
-            name: "PartoutCodegen",
-            targets: ["PartoutCodegen"]
+            name: "CodegenLibrary",
+            targets: ["CodegenLibrary"]
         ),
         .executable(
-            name: "partout-codegen",
+            name: "codegen",
             targets: ["codegen"]
         )
     ],
@@ -24,7 +24,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "PartoutCodegen",
+            name: "CodegenLibrary",
             dependencies: [
                 .product(name: "SwiftParser", package: "swift-syntax"),
                 .product(name: "SwiftSyntax", package: "swift-syntax")
@@ -33,13 +33,13 @@ let package = Package(
         .executableTarget(
             name: "codegen",
             dependencies: [
-                "PartoutCodegen",
+                "CodegenLibrary",
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
         .testTarget(
-            name: "PartoutCodegenTests",
-            dependencies: ["PartoutCodegen"]
+            name: "CodegenLibraryTests",
+            dependencies: ["CodegenLibrary"]
         )
     ]
 )

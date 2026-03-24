@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
-@testable import PartoutCodegen
+@testable import CodegenLibrary
 import Foundation
 import Testing
 

@@ -1,4 +1,4 @@
-# partout-codegen
+# codegen
 
 A Swift tool that scans Swift source code and generates [OpenAPI 3.1.0](https://spec.openapis.org/oas/v3.1.0) specification files from your data models.
 
@@ -42,7 +42,7 @@ targets: [
     .target(
         name: "MyTool",
         dependencies: [
-            .product(name: "PartoutCodegen", package: "codegen")
+            .product(name: "CodegenLibrary", package: "codegen")
         ]
     )
 ]
@@ -100,7 +100,7 @@ entities:
 ### Library API
 
 ```swift
-import PartoutCodegen
+import CodegenLibrary
 
 let codegen = Codegen()
 
@@ -142,7 +142,7 @@ Swift source files
   openapi.yaml
 ```
 
-To add a new output format implement the `IREncoder` protocol from `PartoutCodegen` and pass an instance to `Codegen.generate(encoder:from:)`.
+To add a new output format implement the `IREncoder` protocol from `CodegenLibrary` and pass an instance to `Codegen.generate(encoder:from:)`.
 
 ## License
 
