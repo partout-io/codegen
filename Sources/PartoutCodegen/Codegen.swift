@@ -22,23 +22,33 @@ public final class Codegen {
 
     public init() {}
 
-    public func scan(paths: [String], entities: [String]) throws -> IRContext {
+    public func scan(
+        paths: [String],
+        entities: [String],
+        aliases: [String: String] = [:]
+    ) throws -> IRContext {
         var ctx = try Self.scanDirectories(paths: paths)
+        // Inject a few hardcoded ones
+        let injectedAliases = try Self.injectedAliases(from: aliases)
+        let injectedAliasNames = Set(injectedAliases.map(\.fqTypeName))
+        ctx.aliases = ctx.aliases.filter {
+            entities.contains($0.fqTypeName) && !injectedAliasNames.contains($0.fqTypeName)
+        }
+        ctx.aliases.append(contentsOf: [
+            IRAlias(name: "Int8", kind: .int, parents: []),
+            IRAlias(name: "Int16", kind: .int, parents: []),
+            IRAlias(name: "Int32", kind: .int, parents: []),
+            IRAlias(name: "Int64", kind: .int, parents: []),
+            IRAlias(name: "UInt8", kind: .int, parents: []),
+            IRAlias(name: "UInt16", kind: .int, parents: []),
+            IRAlias(name: "UInt32", kind: .int, parents: []),
+            IRAlias(name: "UInt64", kind: .int, parents: [])
+        ])
+        ctx.aliases.append(contentsOf: injectedAliases)
         let aliasesNames = ctx.aliases.map(\.fqTypeName)
         ctx.models = ctx.models.filter {
             entities.contains($0.fqTypeName) && !aliasesNames.contains($0.fqTypeName)
         }
-        ctx.aliases = ctx.aliases.filter {
-            entities.contains($0.fqTypeName)
-        }
-        // Inject a few hardcoded ones
-        ctx.aliases.append(contentsOf: [
-            IRAlias(name: "SecureData", kind: .string, parents: []),
-            IRAlias(name: "UInt16", kind: .int, parents: []),
-            IRAlias(name: "UInt32", kind: .int, parents: []),
-            IRAlias(name: "UInt64", kind: .int, parents: []),
-            IRAlias(name: "UniqueID", kind: .string, parents: [])
-        ])
         // Make sure that all entities exist in the output
         var undefinedEntities = Set(entities)
         for model in ctx.models {
@@ -135,5 +145,57 @@ private extension Codegen {
         let scanner = ModelScanner(viewMode: .all)
         scanner.walk(source)
         return scanner.results
+    }
+
+    static func injectedAliases(from aliases: [String: String]) throws -> [IRAlias] {
+        var resolvedAliases: [String: IRType] = [:]
+        for alias in aliases {
+            resolvedAliases[alias.key] = try parseAliasKind(alias.value)
+        }
+        var result: [IRAlias] = []
+        for aliasName in resolvedAliases.keys.sorted() {
+            guard let kind = resolvedAliases[aliasName] else { continue }
+            result.append(IRAlias(name: aliasName, kind: kind, parents: []))
+        }
+        return result
+    }
+
+    static func parseAliasKind(_ rawValue: String) throws -> IRType {
+        let normalized = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        switch normalized {
+        case "string":
+            return .string
+        case "int", "integer":
+            return .int
+        case "double", "number", "timeinterval":
+            return .double
+        case "bool", "boolean":
+            return .bool
+        case "uuid":
+            return .uuid
+        case "url", "uri":
+            return .url
+        case "data", "bytes":
+            return .data
+        case "date":
+            return .date
+        case "json":
+            return .json
+        default:
+            throw AliasError.unsupportedKind(rawValue)
+        }
+    }
+}
+
+private extension Codegen {
+    enum AliasError: Error, CustomStringConvertible {
+        case unsupportedKind(String)
+
+        var description: String {
+            switch self {
+            case .unsupportedKind(let kind):
+                return "Unsupported alias kind: \(kind)"
+            }
+        }
     }
 }

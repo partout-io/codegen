@@ -38,13 +38,20 @@ struct CodegenCommand: ParsableCommand {
     @Option(name: .long, help: "YAML file describing the paths & entities to process.")
     var manifest: String
 
+    @Option(
+        name: .long,
+        help: "Comma-separated aliases in the form AliasName:type, for example SecureData:string,UniqueID:string."
+    )
+    var aliases: String?
+
     func run() throws {
         let manifestURL = resolve(path: manifest)
         let manifest = try loadManifest(from: manifestURL.path)
         let paths = manifest.paths.map { "\(manifestRoot)/Sources/\($0)" }
         let entities = manifest.entities
+        let aliases = try parseAliases(self.aliases)
         let codegen = Codegen()
-        let ctx = try codegen.scan(paths: paths, entities: entities)
+        let ctx = try codegen.scan(paths: paths, entities: entities, aliases: aliases)
 
         let encoderInstance = encoder.makeEncoder()
         let result = try codegen.generate(encoder: encoderInstance, from: ctx)
@@ -57,6 +64,34 @@ struct CodegenCommand: ParsableCommand {
         }
         return URL(fileURLWithPath: manifestRoot, isDirectory: true)
             .appendingPathComponent(path)
+    }
+
+    private func parseAliases(_ rawValue: String?) throws -> [String: String] {
+        guard let rawValue else {
+            return [:]
+        }
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return [:]
+        }
+
+        var aliases: [String: String] = [:]
+        for entry in trimmed.split(separator: ",", omittingEmptySubsequences: false) {
+            guard !entry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                throw ValidationError("Invalid alias entry: \(entry). Expected AliasName:type.")
+            }
+            let parts = entry.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+            guard parts.count == 2 else {
+                throw ValidationError("Invalid alias entry: \(entry). Expected AliasName:type.")
+            }
+            let name = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
+            let kind = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !name.isEmpty, !kind.isEmpty else {
+                throw ValidationError("Invalid alias entry: \(entry). Expected AliasName:type.")
+            }
+            aliases[name] = kind
+        }
+        return aliases
     }
 }
 
