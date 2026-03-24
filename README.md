@@ -53,7 +53,7 @@ targets: [
 ### CLI
 
 ```
-USAGE: codegen --manifest <manifest> [--encoder <encoder>] [--manifest-root <manifest-root>]
+USAGE: codegen --manifest <manifest> [--encoder <encoder>] [--manifest-root <manifest-root>] [--aliases <aliases>]
 
 OPTIONS:
   --encoder <encoder>             Encoder to use. Available values: openapi. Defaults to openapi.
@@ -61,6 +61,8 @@ OPTIONS:
                                   Root folder that contains the manifest and Sources directory
                                   (defaults to current directory).
   --manifest <manifest>           YAML file describing the paths & entities to process.
+  --aliases <aliases>             Comma-separated aliases in the form AliasName:type, for example
+                                  SecureData:string,UniqueID:string.
   -h, --help                      Show help information.
 ```
 
@@ -71,6 +73,7 @@ codegen \
   --encoder openapi \
   --manifest-root /path/to/project \
   --manifest codegen.yaml \
+  --aliases SecureData:string,UniqueID:string \
   > openapi.yaml
 ```
 
@@ -96,6 +99,10 @@ entities:
   - Comment
   - Post.Attachment
 ```
+
+### Aliases
+
+Use `--aliases` to inject type aliases from the command line without putting them in the manifest. Each entry uses `AliasName:type`, and multiple entries are separated by commas.
 
 ### Library API
 
