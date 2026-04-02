@@ -58,7 +58,7 @@ public final class Codegen {
         for alias in ctx.aliases {
             undefinedEntities.remove(alias.fqTypeName)
         }
-        assert(undefinedEntities.isEmpty)
+        assert(undefinedEntities.isEmpty, "Undefined entities: \(undefinedEntities)")
         return ctx
     }
 
