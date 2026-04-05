@@ -22,6 +22,7 @@ public struct IRAlias {
 public struct IRProperty {
     public let name: String
     public let serializedName: String?
+    public let rawValue: String?
     public let type: IRType
     public let scope: [IRScope]
     public let associatedProperties: [IRProperty]

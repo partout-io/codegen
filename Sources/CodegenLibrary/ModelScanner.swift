@@ -132,6 +132,7 @@ private extension EnumDeclSyntax {
                 cases.append(IRProperty(
                     name: element.name.text,
                     serializedName: nil,
+                    rawValue: element.serializedRawValue,
                     type: element.irAssociatedType(associatedProperties: associatedProperties, parents: parents) ?? .enumType(name.text),
                     scope: parents,
                     associatedProperties: associatedProperties
@@ -163,6 +164,7 @@ private extension MemberBlockSyntax {
                 props.append(IRProperty(
                     name: name,
                     serializedName: codingKeys[name],
+                    rawValue: nil,
                     type: irType,
                     scope: parents,
                     associatedProperties: []
@@ -214,6 +216,7 @@ private extension EnumCaseElementSyntax {
             return IRProperty(
                 name: parameterName,
                 serializedName: nil,
+                rawValue: nil,
                 type: parameter.type.irType(parents: parents),
                 scope: parents,
                 associatedProperties: []
@@ -224,6 +227,12 @@ private extension EnumCaseElementSyntax {
     var serializedStringLiteral: String? {
         guard let rawValue else { return nil }
         return rawValue.value.trimmedDescription.unquotedSwiftStringLiteral
+    }
+
+    var serializedRawValue: String? {
+        guard let rawValue else { return nil }
+        let trimmed = rawValue.value.trimmedDescription
+        return trimmed.unquotedSwiftStringLiteral ?? trimmed
     }
 }
 

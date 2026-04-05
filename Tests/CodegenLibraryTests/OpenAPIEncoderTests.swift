@@ -228,6 +228,75 @@ struct OpenAPIEncoderTests {
                 - basic
                 - premium
               type: string
+              x-enum-varnames:
+                - basic
+                - premium
+        info:
+          title: codegen
+          version: 1.0.0
+        openapi: 3.1.0
+        paths: {}
+        """)
+    }
+
+    @Test("Enum with custom string raw values")
+    func enumWithCustomStringRawValues() throws {
+        let source = """
+        enum Strategy: String {
+            case auth
+            case crypt
+            case cryptV2 = "crypt-v2"
+        }
+        """
+
+        let yaml = try encodeOpenAPI(from: source)
+
+        #expect(yaml == """
+        components:
+          schemas:
+            Strategy:
+              enum:
+                - auth
+                - crypt
+                - "crypt-v2"
+              type: string
+              x-enum-varnames:
+                - auth
+                - crypt
+                - cryptV2
+        info:
+          title: codegen
+          version: 1.0.0
+        openapi: 3.1.0
+        paths: {}
+        """)
+    }
+
+    @Test("Enum with custom integer raw values")
+    func enumWithCustomIntegerRawValues() throws {
+        let source = """
+        enum Priority: Int {
+            case low = 1
+            case medium = 5
+            case high = 10
+        }
+        """
+
+        let yaml = try encodeOpenAPI(from: source)
+
+        #expect(yaml == """
+        components:
+          schemas:
+            Priority:
+              enum:
+                - 1
+                - 5
+                - 10
+              type: integer
+              x-enum-varnames:
+                - low
+                - medium
+                - high
         info:
           title: codegen
           version: 1.0.0

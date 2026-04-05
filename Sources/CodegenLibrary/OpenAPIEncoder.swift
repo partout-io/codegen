@@ -95,15 +95,58 @@ private extension OpenAPIEncoder {
                     return discriminatedBaseSchema(for: model, referenceStyle: referenceStyle)
                 }
                 if rawType == "Int" {
+                    var nextValue = 0
+                    let values = model.properties.map { enumCase in
+                        if let rawValue = enumCase.rawValue, let parsed = Int(rawValue) {
+                            nextValue = parsed + 1
+                            return parsed
+                        }
+                        defer { nextValue += 1 }
+                        return nextValue
+                    }
                     return [
                         "type": "integer",
-                        "enum": Array(model.properties.indices),
+                        "enum": values,
+                        "x-enum-varnames": model.properties.map(\.name)
+                    ]
+                }
+                if rawType == "Double" || rawType == "TimeInterval" {
+                    var nextValue = 0.0
+                    let values = model.properties.map { enumCase in
+                        if let rawValue = enumCase.rawValue, let parsed = Double(rawValue) {
+                            nextValue = parsed + 1
+                            return parsed
+                        }
+                        defer { nextValue += 1 }
+                        return nextValue
+                    }
+                    return [
+                        "type": "number",
+                        "enum": values,
+                        "x-enum-varnames": model.properties.map(\.name)
+                    ]
+                }
+                if rawType == "Bool" {
+                    let values = model.properties.enumerated().map { index, enumCase in
+                        switch enumCase.rawValue?.lowercased() {
+                        case "true":
+                            return true
+                        case "false":
+                            return false
+                        default:
+                            return index == 0
+                        }
+                    }
+                    return [
+                        "type": "boolean",
+                        "enum": values,
                         "x-enum-varnames": model.properties.map(\.name)
                     ]
                 }
                 return [
                     "type": "string",
-                    "enum": model.properties.map(\.name)
+                    "enum": model.properties.map { $0.rawValue ?? $0.name },
+                    "x-enum-varnames": model.properties.map(\.name)
                 ]
             case .struct:
                 var properties: [String: Any] = [:]
@@ -284,7 +327,7 @@ private extension OpenAPIEncoder {
     ) -> [String: Any] {
         let mapping: [String: String] = Dictionary(uniqueKeysWithValues: model.properties.map { enumCase in
             (
-                enumCase.name,
+                enumCase.rawValue ?? enumCase.name,
                 refSchema(
                     for: "\(model.fqTypeName).\(enumCase.name)",
                     referenceStyle: referenceStyle
@@ -312,10 +355,11 @@ private extension OpenAPIEncoder {
         ctx: IRContext,
         referenceStyle: ReferenceStyle
     ) -> [String: Any] {
+        let caseValue = enumCase.rawValue ?? enumCase.name
         var properties: [String: Any] = [
             "type": [
                 "type": "string",
-                "const": enumCase.name
+                "const": caseValue
             ]
         ]
         var required = ["type"]
