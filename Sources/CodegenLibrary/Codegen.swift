@@ -39,6 +39,7 @@ public final class Codegen {
             IRAlias(name: "Int16", kind: .int, parents: []),
             IRAlias(name: "Int32", kind: .int, parents: []),
             IRAlias(name: "Int64", kind: .int, parents: []),
+            IRAlias(name: "UInt", kind: .int, parents: []),
             IRAlias(name: "UInt8", kind: .int, parents: []),
             IRAlias(name: "UInt16", kind: .int, parents: []),
             IRAlias(name: "UInt32", kind: .int, parents: []),
