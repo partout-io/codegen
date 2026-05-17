@@ -38,12 +38,12 @@ public final class Codegen {
             IRAlias(name: "Int8", kind: .int, parents: []),
             IRAlias(name: "Int16", kind: .int, parents: []),
             IRAlias(name: "Int32", kind: .int, parents: []),
-            IRAlias(name: "Int64", kind: .int, parents: []),
+            IRAlias(name: "Int64", kind: .long, parents: []),
             IRAlias(name: "UInt", kind: .int, parents: []),
             IRAlias(name: "UInt8", kind: .int, parents: []),
             IRAlias(name: "UInt16", kind: .int, parents: []),
             IRAlias(name: "UInt32", kind: .int, parents: []),
-            IRAlias(name: "UInt64", kind: .int, parents: [])
+            IRAlias(name: "UInt64", kind: .long, parents: [])
         ])
         ctx.aliases.append(contentsOf: injectedAliases)
         let aliasesNames = ctx.aliases.map(\.fqTypeName)

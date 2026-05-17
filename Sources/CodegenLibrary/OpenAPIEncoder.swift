@@ -189,6 +189,8 @@ private extension OpenAPIEncoder {
             ["type": "string"]
         case .int:
             ["type": "integer"]
+        case .long:
+            ["type": "integer", "format": "int64"]
         case .double:
             ["type": "number"]
         case .bool:

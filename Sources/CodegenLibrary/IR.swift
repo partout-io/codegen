@@ -35,6 +35,7 @@ public struct IRProperty {
 public indirect enum IRType {
     case string
     case int
+    case long
     case double
     case bool
     case uuid
