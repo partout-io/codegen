@@ -1,4 +1,4 @@
-# codegen
+# swift-openapi
 
 A Swift tool that scans Swift source code and generates [OpenAPI 3.1.0](https://spec.openapis.org/oas/v3.1.0) specification files from your data models.
 
@@ -23,8 +23,8 @@ It is available both as a **CLI executable** and a **Swift library** you can emb
 ### As a CLI tool (Swift Package Manager)
 
 ```bash
-git clone https://github.com/partout-io/codegen.git
-cd codegen
+git clone https://github.com/keeshux/swift-openapi
+cd swift-openapi
 swift build -c release
 # The binary is at .build/release/codegen
 ```
@@ -35,8 +35,8 @@ Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-    // Check https://github.com/partout-io/codegen/releases for the latest version tag.
-    .package(url: "https://github.com/partout-io/codegen.git", from: "1.0.0")
+    // Check https://github.com/keeshux/swift-openapi/releases for the latest version tag.
+    .package(url: "https://github.com/keeshux/swift-openapi", from: "1.0.0")
 ],
 targets: [
     .target(
